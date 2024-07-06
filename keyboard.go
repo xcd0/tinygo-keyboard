@@ -10,8 +10,8 @@ import (
 	"machine/usb/hid/mouse"
 	"time"
 
-	"github.com/sago35/tinygo-keyboard/keycodes"
-	"github.com/sago35/tinygo-keyboard/keycodes/jp"
+	"github.com/xcd0/tinygo-keyboard/keycodes"
+	"github.com/xcd0/tinygo-keyboard/keycodes/jp"
 	"golang.org/x/exp/slices"
 )
 

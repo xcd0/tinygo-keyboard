@@ -39,7 +39,7 @@ func main() {
 	var oBuf strings.Builder
 	oBuf.WriteString("package main\n")
 	oBuf.WriteString("\n")
-	oBuf.WriteString("import keyboard \"github.com/sago35/tinygo-keyboard\"\n")
+	oBuf.WriteString("import keyboard \"github.com/xcd0/tinygo-keyboard\"\n")
 	oBuf.WriteString("\n")
 	oBuf.WriteString("func loadKeyboardDef() {\n")
 	oBuf.WriteString("\tkeyboard.KeyboardDef = []byte{\n")

@@ -11,8 +11,8 @@ import (
 	"runtime/volatile"
 	"time"
 
-	keyboard "github.com/sago35/tinygo-keyboard"
-	"github.com/sago35/tinygo-keyboard/keycodes/jp"
+	keyboard "github.com/xcd0/tinygo-keyboard"
+	"github.com/xcd0/tinygo-keyboard/keycodes/jp"
 	"tinygo.org/x/drivers/ws2812"
 )
 
