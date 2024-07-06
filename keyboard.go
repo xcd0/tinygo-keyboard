@@ -26,11 +26,12 @@ type Device struct {
 
 	kb []KBer
 
-	layer      int
-	layerStack []int
-	baseLayer  int
-	pressed    []uint32
-	repeat     map[uint32]time.Time
+	layer        int
+	layerStack   []int
+	baseLayer    int
+	pressed      []uint32
+	repeat       map[uint32]time.Time
+	ScanInterval time.Duration
 }
 
 type KBer interface {
@@ -64,17 +65,22 @@ func New() *Device {
 		Port: k.Port(),
 	}
 	d := &Device{
-		Keyboard:   kb,
-		Mouse:      mouse.Port(),
-		pressed:    make([]uint32, 0, 10),
-		flashCh:    make(chan bool, 10),
-		layerStack: make([]int, 0, 6),
-		repeat:     map[uint32]time.Time{},
+		Keyboard:     kb,
+		Mouse:        mouse.Port(),
+		pressed:      make([]uint32, 0, 10),
+		flashCh:      make(chan bool, 10),
+		layerStack:   make([]int, 0, 6),
+		repeat:       map[uint32]time.Time{},
+		ScanInterval: 1 * time.Millisecond,
 	}
 
 	SetDevice(d)
 
 	return d
+}
+
+func (d *Device) SetScanInterval(interval time.Duration) {
+	d.ScanInterval = interval
 }
 
 func (d *Device) OverrideCtrlH() {
@@ -348,7 +354,7 @@ func (d *Device) Loop(ctx context.Context) error {
 		return err
 	}
 
-	ticker := time.Tick(1000 * time.Millisecond)
+	ticker := time.Tick(d.ScanInterval)
 	cont := true
 	for cont {
 		select {
