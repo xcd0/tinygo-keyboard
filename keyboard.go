@@ -348,7 +348,7 @@ func (d *Device) Loop(ctx context.Context) error {
 		return err
 	}
 
-	ticker := time.Tick(1 * time.Millisecond)
+	ticker := time.Tick(1000 * time.Millisecond)
 	cont := true
 	for cont {
 		select {
