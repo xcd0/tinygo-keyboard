@@ -73,7 +73,6 @@ func New() *Device {
 	}
 
 	SetDevice(d)
-
 	return d
 }
 
@@ -358,7 +357,6 @@ func (d *Device) Loop(ctx context.Context) error {
 		case <-ticker:
 		default:
 		}
-
 		err := d.Tick()
 		if err != nil {
 			return err

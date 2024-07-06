@@ -4,6 +4,7 @@ package keyboard
 
 import (
 	"machine"
+	"time"
 )
 
 type MatrixKeyboard struct {
@@ -12,10 +13,11 @@ type MatrixKeyboard struct {
 	options  Options
 	callback Callback
 
-	Col          []machine.Pin
-	Row          []machine.Pin
-	cycleCounter []uint8
-	debounce     uint8
+	Col           []machine.Pin
+	Row           []machine.Pin
+	cycleCounter  []uint8
+	debounce      uint8
+	sleepDuration time.Duration
 }
 
 func (d *Device) AddMatrixKeyboard(colPins, rowPins []machine.Pin, keys [][]Keycode, opt ...Option) *MatrixKeyboard {
@@ -47,14 +49,19 @@ func (d *Device) AddMatrixKeyboard(colPins, rowPins []machine.Pin, keys [][]Keyc
 	}
 
 	k := &MatrixKeyboard{
-		Col:          colPins,
-		Row:          rowPins,
-		State:        state,
-		Keys:         keydef,
-		options:      o,
-		callback:     func(layer, index int, state State) {},
-		cycleCounter: cycleCnt,
-		debounce:     8,
+		Col:           colPins,
+		Row:           rowPins,
+		State:         state,
+		Keys:          keydef,
+		options:       o,
+		callback:      func(layer, index int, state State) {},
+		cycleCounter:  cycleCnt,
+		debounce:      8,
+		sleepDuration: 0,
+	}
+	if o.MatrixScanPeriod != 0 {
+		// Calculate the sleep duration before and after each key read, based on the total scan period for the entire key matrix.
+		k.sleepDuration = o.MatrixScanPeriod / time.Duration(len(k.Col)*len(k.Row))
 	}
 
 	d.kb = append(d.kb, k)
@@ -79,10 +86,12 @@ func (d *MatrixKeyboard) Get() []State {
 			if !d.options.InvertDiode {
 				d.Col[c].Configure(machine.PinConfig{Mode: machine.PinOutput})
 				d.Col[c].High()
+				time.Sleep(d.sleepDuration)
 				current = d.Row[r].Get()
 			} else {
 				d.Row[r].Configure(machine.PinConfig{Mode: machine.PinOutput})
 				d.Row[r].High()
+				time.Sleep(d.sleepDuration)
 				current = d.Col[c].Get()
 			}
 			idx := r*len(d.Col) + c
