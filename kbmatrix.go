@@ -78,61 +78,65 @@ func (d *MatrixKeyboard) Callback(layer, index int, state State) {
 	}
 }
 
-func (d *MatrixKeyboard) Get() []State {
-	for c := range d.Col {
-		for r := range d.Row {
-			//d.State[r*len(d.Col)+c] = d.Row[r].Get()
-			current := false
-			if !d.options.InvertDiode {
-				d.Col[c].Configure(machine.PinConfig{Mode: machine.PinOutput})
-				d.Col[c].High()
-				time.Sleep(d.sleepDuration)
-				current = d.Row[r].Get()
+func (d *MatrixKeyboard) UpdateKeyState(idx int, current bool) {
+	switch d.State[idx] {
+	case None:
+		if current {
+			if d.cycleCounter[idx] >= d.debounce {
+				d.State[idx] = NoneToPress
+				d.cycleCounter[idx] = 0
 			} else {
-				d.Row[r].Configure(machine.PinConfig{Mode: machine.PinOutput})
-				d.Row[r].High()
-				time.Sleep(d.sleepDuration)
-				current = d.Col[c].Get()
+				d.cycleCounter[idx]++
 			}
-			idx := r*len(d.Col) + c
-			switch d.State[idx] {
-			case None:
-				if current {
-					if d.cycleCounter[idx] >= d.debounce {
-						d.State[idx] = NoneToPress
-						d.cycleCounter[idx] = 0
-					} else {
-						d.cycleCounter[idx]++
-					}
-				} else {
-					d.cycleCounter[idx] = 0
-				}
-			case NoneToPress:
-				d.State[idx] = Press
-			case Press:
-				if current {
-					d.cycleCounter[idx] = 0
-				} else {
-					if d.cycleCounter[idx] >= d.debounce {
-						d.State[idx] = PressToRelease
-						d.cycleCounter[idx] = 0
-					} else {
-						d.cycleCounter[idx]++
-					}
-				}
-			case PressToRelease:
-				d.State[idx] = None
-			}
-			if !d.options.InvertDiode {
-				d.Col[c].Low()
-				d.Col[c].Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
+		} else {
+			d.cycleCounter[idx] = 0
+		}
+	case NoneToPress:
+		d.State[idx] = Press
+	case Press:
+		if current {
+			d.cycleCounter[idx] = 0
+		} else {
+			if d.cycleCounter[idx] >= d.debounce {
+				d.State[idx] = PressToRelease
+				d.cycleCounter[idx] = 0
 			} else {
-				d.Row[r].Low()
-				d.Row[r].Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
+				d.cycleCounter[idx]++
 			}
 		}
+	case PressToRelease:
+		d.State[idx] = None
 	}
+}
 
+func (d *MatrixKeyboard) readPin(out, in []machine.Pin, i, j int) bool {
+	out[i].Configure(machine.PinConfig{Mode: machine.PinOutput})
+	out[i].High()
+	time.Sleep(d.sleepDuration) // 読み取り前に待機
+	return in[j].Get()
+}
+
+func (d *MatrixKeyboard) Get() []State {
+	current := false
+	if !d.options.InvertDiode {
+		for c := range d.Col {
+			for r := range d.Row {
+				current = d.readPin(d.Col, d.Row, c, r)
+				d.UpdateKeyState(r*len(d.Col)+c, current)
+			}
+			d.Col[c].Low()
+			d.Col[c].Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
+		}
+	} else {
+		for r := range d.Row {
+			for c := range d.Col {
+				current = d.readPin(d.Col, d.Row, c, r)
+				d.UpdateKeyState(r*len(d.Col)+c, current)
+			}
+			d.Row[r].Low()
+			d.Row[r].Configure(machine.PinConfig{Mode: machine.PinInputPulldown})
+		}
+	}
 	return d.State
 }
 
