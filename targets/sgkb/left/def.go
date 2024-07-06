@@ -1,6 +1,6 @@
 package main
 
-import keyboard "github.com/sago35/tinygo-keyboard"
+import keyboard "github.com/xcd0/tinygo-keyboard"
 
 func loadKeyboardDef() {
 	keyboard.KeyboardDef = []byte{

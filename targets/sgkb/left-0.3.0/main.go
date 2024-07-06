@@ -8,8 +8,8 @@ import (
 	"machine"
 	"machine/usb"
 
-	keyboard "github.com/sago35/tinygo-keyboard"
-	"github.com/sago35/tinygo-keyboard/keycodes/jp"
+	keyboard "github.com/xcd0/tinygo-keyboard"
+	"github.com/xcd0/tinygo-keyboard/keycodes/jp"
 )
 
 func main() {

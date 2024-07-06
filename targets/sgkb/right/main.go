@@ -6,7 +6,7 @@ import (
 	"log"
 	"machine"
 
-	keyboard "github.com/sago35/tinygo-keyboard"
+	keyboard "github.com/xcd0/tinygo-keyboard"
 )
 
 func main() {

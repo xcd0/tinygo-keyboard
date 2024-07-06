@@ -1,7 +1,7 @@
 package jp
 
 import (
-	"github.com/sago35/tinygo-keyboard/keycodes"
+	"github.com/xcd0/tinygo-keyboard/keycodes"
 )
 
 // for Japanese Keyboard
