@@ -1,4 +1,4 @@
-module github.com/sago35/tinygo-keyboard
+module github.com/xcd0/tinygo-keyboard
 
 go 1.19
 
